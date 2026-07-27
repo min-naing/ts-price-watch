@@ -1,0 +1,130 @@
+import { chromium, type Locator } from "playwright";
+import { connectDb } from "../db/mongo.ts";
+import { sendTelegramAlert } from "../notify/telegram.ts";
+import type { PriceRecord, Product } from "../types/product.ts";
+
+export async function runScraper() {
+  const db = await connectDb();
+
+  const browser = await chromium.launch({ headless: true });
+
+  try {
+    const page = await browser.newPage();
+    await page.goto("https://scrapingcourse.com/ecommerce");
+
+    const productsCol = db.collection<Product>("products");
+    const priceHistoryCol = db.collection<PriceRecord>("price_history");
+
+    let pageNum = 1;
+
+    while (true) {
+      console.log(`📢 Scraping page ${pageNum}`);
+
+      const rows = page.locator('[data-products="item"]');
+
+      await rows.first().waitFor();
+
+      for (const item of await rows.all()) {
+        try {
+          const firstLink = item.getByRole("link").first();
+          const fullUrl = await firstLink.getAttribute("href");
+          if (!fullUrl) {
+            console.warn(`Skipping product — missing href`);
+            continue;
+          }
+          const name = await firstLink
+            .getByRole("heading", { level: 2 })
+            .innerText();
+          const imgUrl = await firstLink
+            .locator("img")
+            .first()
+            .getAttribute("src");
+          const { price, isOnSale } = await getPriceAndOnSale(firstLink);
+
+          const hasVariants = await item
+            .getByRole("link", { name: /select options/i })
+            .isVisible();
+          const addToCartVisible = await item
+            .getByRole("link", { name: /add to cart/i })
+            .isVisible();
+          const inStock = hasVariants ? null : addToCartVisible;
+
+          console.log(`  - ${name} (${price})`);
+
+          await productsCol.updateOne(
+            { fullUrl },
+            { $set: { name, imgUrl, fullUrl, updatedAt: new Date() } },
+            { upsert: true },
+          );
+
+          const previous = await priceHistoryCol.findOne(
+            { fullUrl },
+            { sort: { scrapedAt: -1 } },
+          );
+          if (previous && price < previous.price) {
+            await sendTelegramAlert(
+              `🚨 Price drop! ${name}\n` +
+                `Was: $${previous.price} → Now: $${price}\n` +
+                `${fullUrl}`,
+            );
+          }
+
+          await priceHistoryCol.insertOne({
+            fullUrl,
+            price,
+            isOnSale,
+            inStock,
+            scrapedAt: new Date(),
+          });
+        } catch (err) {
+          console.error("Failed to scrape item, skipping:", err);
+          continue;
+        }
+      }
+
+      const nextLink = page
+        .getByTestId("pagination")
+        .getByRole("link", { name: "→" })
+        .first();
+
+      if (!(await nextLink.isVisible())) {
+        console.log("No more pages.");
+        break;
+      }
+
+      await nextLink.click();
+
+      pageNum++;
+    }
+  } finally {
+    await browser.close();
+  }
+}
+
+async function getPriceAndOnSale(
+  item: Locator,
+): Promise<{ price: number; isOnSale: boolean }> {
+  const priceWrapper = item.getByTestId("product-price");
+
+  // check if sale price exists (inside <ins>)
+  const insLocator = priceWrapper.locator("ins .woocommerce-Price-amount");
+  const hasSalePrice = await insLocator.isVisible();
+
+  const priceText = hasSalePrice
+    ? await insLocator.innerText()
+    : await priceWrapper
+        .locator(".woocommerce-Price-amount")
+        .first()
+        .innerText();
+
+  const price = parsePrice(priceText ?? "");
+  return { price, isOnSale: hasSalePrice };
+}
+
+function parsePrice(raw: string): number {
+  const cleaned = raw.replace(/[^0-9.]/g, "");
+  const value = parseFloat(cleaned);
+  if (Number.isNaN(value))
+    throw new Error(`Could not parse price from: "${raw}"`);
+  return value;
+}
