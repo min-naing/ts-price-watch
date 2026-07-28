@@ -27,18 +27,23 @@ export async function runScraper() {
       for (const item of await rows.all()) {
         try {
           const firstLink = item.getByRole("link").first();
-          const fullUrl = await firstLink.getAttribute("href");
-          if (!fullUrl) {
+          
+          const rawUrl = await firstLink.getAttribute("href");
+          if (!rawUrl) {
             console.warn(`Skipping product — missing href`);
             continue;
           }
+          const fullUrl = rawUrl.replace(/\/$/, ""); // remove trailing slash
+
           const name = await firstLink
             .getByRole("heading", { level: 2 })
             .innerText();
+
           const imgUrl = await firstLink
             .locator("img")
             .first()
             .getAttribute("src");
+
           const { price, isOnSale } = await getPriceAndOnSale(firstLink);
 
           const hasVariants = await item
@@ -61,6 +66,7 @@ export async function runScraper() {
             { fullUrl },
             { sort: { scrapedAt: -1 } },
           );
+          
           if (previous && price < previous.price) {
             await sendTelegramAlert(
               `🚨 Price drop! ${name}\n` +
