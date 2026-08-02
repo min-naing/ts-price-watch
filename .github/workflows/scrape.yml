@@ -9,7 +9,7 @@ jobs:
   scrape:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v4
         with:
@@ -17,6 +17,13 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Permit runner to access MongoDB Atlas
+        uses: textbook/atlas-ip@v1.1.0
+        with:
+          atlas-public-key: ${{ secrets.ATLAS_PUBLIC_KEY }}
+          atlas-private-key: ${{ secrets.ATLAS_PRIVATE_KEY }}
+          group-id: ${{ vars.ATLAS_GROUP_ID }}
 
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps
