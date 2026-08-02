@@ -66,6 +66,14 @@ MongoDB Atlas                Telegram Bot alert
    - `MONGODB_URI`
    - `TELEGRAM_BOT_TOKEN`
    - `TELEGRAM_CHAT_ID`
-4. Go to the **Actions** tab and trigger the workflow manually via **"Run workflow"**
+   - `ATLAS_PUBLIC_KEY`
+   - `ATLAS_PRIVATE_KEY`
+   > **Note:** `ATLAS_PUBLIC_KEY` and `ATLAS_PRIVATE_KEY` are MongoDB Atlas Organization API keys.
+   > Go to **Organization → Access Manager → API Keys → Create API Key** and set the permission to **Organization Member**.
+   > Before creating the key, enable **"Require IP Access List for the Atlas Administration API"** under **Organization Settings**.
+4. Add the following repository variable:
+   - `ATLAS_GROUP_ID`
+   > **Note:** `ATLAS_GROUP_ID` is your Project ID, found under **Project Settings → General**.
+5. Go to the **Actions** tab and trigger manually via **"Run workflow"**
 
 The scraper will then run automatically every 6 hours.
