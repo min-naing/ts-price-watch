@@ -2,6 +2,9 @@ import { MongoClient, Db } from "mongodb";
 
 let db: Db | null = null;
 
+export const productCollectionName = "products";
+export const priceHistoryCollectionName = "price_history";
+
 export async function connectDb(): Promise<Db> {
   if (db) return db;
 
@@ -18,7 +21,6 @@ export async function connectDb(): Promise<Db> {
 }
 
 async function setupCollections(db: Db): Promise<void> {
-  const priceHistoryCollectionName = "price_history";
   const collections = await db.listCollections({ name: priceHistoryCollectionName }).toArray();
 
   if (collections.length === 0) {

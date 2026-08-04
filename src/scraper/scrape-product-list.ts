@@ -1,19 +1,13 @@
 import { chromium, type Locator } from "playwright";
-import { connectDb } from "../db/mongo.ts";
-import { sendTelegramAlert } from "../notify/telegram.ts";
-import type { PriceRecord, Product } from "../types/product.ts";
+import type { ScrapedProduct } from "../types/product.ts";
 
-export async function runScraper() {
-  const db = await connectDb();
-
+export async function collectScrapedProducts(): Promise<ScrapedProduct[]> {
   const browser = await chromium.launch({ headless: true });
+  const products: ScrapedProduct[] = [];
 
   try {
     const page = await browser.newPage();
     await page.goto("https://scrapingcourse.com/ecommerce");
-
-    const productsCol = db.collection<Product>("products");
-    const priceHistoryCol = db.collection<PriceRecord>("price_history");
 
     let pageNum = 1;
 
@@ -56,27 +50,10 @@ export async function runScraper() {
 
           console.log(`  - ${name} (${price})`);
 
-          await productsCol.updateOne(
-            { fullUrl },
-            { $set: { name, imgUrl, fullUrl, updatedAt: new Date() } },
-            { upsert: true },
-          );
-
-          const previous = await priceHistoryCol.findOne(
-            { fullUrl },
-            { sort: { scrapedAt: -1 } },
-          );
-          
-          if (previous && price < previous.price) {
-            await sendTelegramAlert(
-              `🚨 Price drop! ${name}\n` +
-                `Was: $${previous.price} → Now: $${price}\n` +
-                `${fullUrl}`,
-            );
-          }
-
-          await priceHistoryCol.insertOne({
+          products.push({
+            name,
             fullUrl,
+            imgUrl,
             price,
             isOnSale,
             inStock,
@@ -102,6 +79,8 @@ export async function runScraper() {
 
       pageNum++;
     }
+
+    return products;
   } finally {
     await browser.close();
   }

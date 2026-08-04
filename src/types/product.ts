@@ -15,3 +15,13 @@ export interface PriceRecord {
   isOnSale: boolean;
   inStock: boolean | null; // null = variant product, unknown without selection
 }
+
+export interface ScrapedProduct {
+  name: string;
+  fullUrl: string;
+  imgUrl: string | null;
+  price: number;
+  isOnSale: boolean;
+  inStock: boolean | null;
+  scrapedAt: Date;
+}
