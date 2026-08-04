@@ -15,6 +15,7 @@
     "test:ui": "playwright test --ui",
     "test:install": "playwright install --with-deps",
     "test:upload-b2": "node --test --experimental-strip-types src/tests/upload-b2.test.ts",
+    "test:parse-price": "node --test --experimental-strip-types src/tests/scrape-product-list.test.ts",
     "typecheck": "tsc --noEmit",
     "build": "tsc",
     "start:prod": "node dist/index.js"

@@ -106,7 +106,7 @@ async function getPriceAndOnSale(
   return { price, isOnSale: hasSalePrice };
 }
 
-function parsePrice(raw: string): number {
+export function parsePrice(raw: string): number {
   const cleaned = raw.replace(/[^0-9.]/g, "");
   const value = parseFloat(cleaned);
   if (Number.isNaN(value))
