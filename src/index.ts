@@ -1,1 +1,33 @@
+import "dotenv/config";
+import { collectScrapedProducts } from "./scraper/scrape-product-list.ts";
+import { syncScrapedProducts } from "./service/product-sync-service.ts";
+import { exportToCsv } from "./export/export-csv.ts";
+import { uploadCsvToB2 } from "./upload/upload-b2.ts";
 
+async function main() {
+  try {
+    console.log("🚀 Starting pipeline...");
+
+    console.log("📦 Step 1: Scraping...");
+    const scrapedProducts = await collectScrapedProducts();
+
+    console.log(
+      "🔁 Step 2: Syncing to MongoDB and sending price drop alerts...",
+    );
+    await syncScrapedProducts(scrapedProducts);
+
+    console.log("📄 Step 3: Exporting CSV...");
+    const csvContent = exportToCsv(scrapedProducts);
+
+    console.log("☁️ Step 4: Uploading to B2...");
+    await uploadCsvToB2(csvContent, `products-${Date.now()}.csv`);
+
+    console.log("✅ Pipeline complete.");
+    process.exit(0);
+  } catch (err) {
+    console.error("❌ Pipeline failed:", err);
+    process.exit(1);
+  }
+}
+
+main();

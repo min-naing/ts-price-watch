@@ -1,16 +1,24 @@
+function requireEnv(name: string): string {
+  const value = process.env[name]?.trim();
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  return value;
+}
+
 export const config = {
   mongodb: {
-    uri: process.env.MONGODB_URI ?? "",
-    dbName: process.env.DB_NAME ?? "price_tracker",
+    uri: requireEnv("MONGODB_URI"),
   },
   telegram: {
-    botToken: process.env.TELEGRAM_BOT_TOKEN ?? "",
-    chatId: process.env.TELEGRAM_CHAT_ID ?? "",
+    botToken: requireEnv("TELEGRAM_BOT_TOKEN"),
+    chatId: requireEnv("TELEGRAM_CHAT_ID"),
   },
   backblaze: {
-    endpoint: process.env.B2_ENDPOINT ?? "",
-    keyId: process.env.B2_KEY_ID ?? "",
-    appKey: process.env.B2_APP_KEY ?? "",
-    bucketName: process.env.B2_BUCKET_NAME ?? "",
+    region: requireEnv("B2_REGION"),
+    endpoint: requireEnv("B2_ENDPOINT"),
+    keyId: requireEnv("B2_KEY_ID"),
+    appKey: requireEnv("B2_APP_KEY"),
+    bucketName: requireEnv("B2_BUCKET_NAME"),
   },
 } as const;

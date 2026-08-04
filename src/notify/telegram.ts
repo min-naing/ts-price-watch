@@ -1,6 +1,8 @@
+import { config } from "../config/index.ts";
+
 export async function sendTelegramAlert(message: string): Promise<void> {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+  const token = config.telegram.botToken;
+  const chatId = config.telegram.chatId;
   if (!token || !chatId) throw new Error("Telegram env vars not set");
 
   const url = `https://api.telegram.org/bot${token}/sendMessage`;

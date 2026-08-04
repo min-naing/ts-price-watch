@@ -1,4 +1,5 @@
 import { MongoClient, Db } from "mongodb";
+import { config } from "../config/index.ts";
 
 let db: Db | null = null;
 
@@ -8,7 +9,7 @@ export const priceHistoryCollectionName = "price_history";
 export async function connectDb(): Promise<Db> {
   if (db) return db;
 
-  const uri = process.env.MONGODB_URI;
+  const uri = config.mongodb.uri;
   if (!uri) throw new Error("MONGODB_URI is not set");
 
   const client = new MongoClient(uri, { serverApi: { version: "1" } });
