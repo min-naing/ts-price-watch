@@ -2,9 +2,9 @@ import "dotenv/config";
 import { test, expect } from "vitest";
 import { HeadObjectCommand } from "@aws-sdk/client-s3";
 
-import { uploadCsvToB2 } from "../upload/upload-b2.ts";
-import { getB2Client } from "../s3/b2.ts";
-import { config } from "../config/index.ts";
+import { uploadCsvToB2 } from "../../upload/upload-b2.ts";
+import { getB2Client } from "../../s3/b2.ts";
+import { config } from "../../config/index.ts";
 
 test("uploads a CSV file to Backblaze B2", async () => {
 

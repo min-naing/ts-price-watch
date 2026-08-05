@@ -15,8 +15,8 @@
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
     "test:install": "playwright install --with-deps",
-    "test:upload-b2": "vitest run src/tests/upload-b2.test.ts",
-    "test:parse-price": "vitest run src/tests/scrape-product-list.test.ts",
+    "test:smoke:upload-b2": "vitest run src/tests/smoke/upload-b2.smoke.test.ts",
+    "test:smoke:telegram": "vitest run src/tests/smoke/telegram.smoke.test.ts",
     "typecheck": "tsc --noEmit",
     "build": "tsc",
     "start:prod": "node dist/index.js"
