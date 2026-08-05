@@ -8,7 +8,7 @@ import { config } from "../config/index.ts";
 
 test("uploads a CSV file to Backblaze B2", async () => {
 
-  const fileName = `node-test-${Date.now()}.csv`;
+  const fileName = `products/2026-08-05/node-test-${Date.now()}.csv`;
   const csv = "sku,price\nABC-1,99\n";
 
   await uploadCsvToB2(csv, fileName);
