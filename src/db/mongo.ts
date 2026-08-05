@@ -22,7 +22,7 @@ export async function connectDb(): Promise<Db> {
 }
 
 async function setupCollections(db: Db): Promise<void> {
-  const collections = await db.listCollections({ name: priceHistoryCollectionName }).toArray();
+  const collections = await db.listCollections({ name: priceHistoryCollectionName }, { nameOnly: true }).toArray();
 
   if (collections.length === 0) {
     await db.createCollection(priceHistoryCollectionName, {
