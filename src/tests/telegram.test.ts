@@ -1,11 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
-process.env.MONGODB_URI = "mongodb://localhost:27017";
-process.env.B2_REGION = "us-east-1";
-process.env.B2_ENDPOINT = "https://example.com";
-process.env.B2_KEY_ID = "test-key";
-process.env.B2_APP_KEY = "test-secret";
-process.env.B2_BUCKET_NAME = "test-bucket";
+import { resetConfig } from "../config/index.ts";
 
 const fetchMock = vi.fn();
 vi.stubGlobal("fetch", fetchMock);
@@ -14,12 +8,7 @@ describe("sendTelegramAlert", () => {
   beforeEach(() => {
     vi.resetModules();
     fetchMock.mockReset();
-    if (!process.env.TELEGRAM_BOT_TOKEN) {
-      process.env.TELEGRAM_BOT_TOKEN = "test-token";
-    }
-    if (!process.env.TELEGRAM_CHAT_ID) {
-      process.env.TELEGRAM_CHAT_ID = "123456";
-    }
+    resetConfig();
   });
 
   it("retries once after a transient failure and succeeds", async () => {

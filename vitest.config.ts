@@ -5,5 +5,6 @@ export default defineConfig({
     include: ["src/**/*.test.ts"],
     exclude: ["src/**/smoke/*.smoke.test.ts"],
     environment: "node",
+    setupFiles: ["src/tests/setup.ts"],
   },
 });
