@@ -10,6 +10,7 @@ export async function collectScrapedProducts(): Promise<ScrapedProduct[]> {
     await page.goto("https://scrapingcourse.com/ecommerce");
 
     let pageNum = 1;
+    let failCount = 0;
 
     while (true) {
       console.log(`📢 Scraping page ${pageNum}`);
@@ -60,9 +61,14 @@ export async function collectScrapedProducts(): Promise<ScrapedProduct[]> {
             scrapedAt: new Date(),
           });
         } catch (err) {
+          failCount++;
           console.error("Failed to scrape item, skipping:", err);
           continue;
         }
+      }
+
+      if (failCount > 5) {
+        throw new Error(`Too many scrape failures: ${failCount} items failed — site structure may have changed`);
       }
 
       const nextLink = page

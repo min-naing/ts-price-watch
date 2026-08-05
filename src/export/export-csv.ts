@@ -1,5 +1,7 @@
 import type { ScrapedProduct } from "../types/product.ts";
 
+const sanitize = (val: string) => `"${val.replace(/"/g, '""')}"`
+
 export function exportToCsv(products: ScrapedProduct[]): string {
   const headers = [
     "name",
@@ -13,12 +15,12 @@ export function exportToCsv(products: ScrapedProduct[]): string {
 
   const row = products.map((p) =>
     [
-      `"${p.name.replace(/"/g, '""')}"`, // escape quotes in names
+      sanitize(p.name), // escape quotes in names
       p.price,
       p.isOnSale,
       p.inStock ?? "variant",
-      p.imgUrl ?? "N/A",
-      p.fullUrl,
+      sanitize(p.imgUrl ?? "N/A"),
+      sanitize(p.fullUrl),
       p.scrapedAt.toISOString(),
     ].join(","),
   );
