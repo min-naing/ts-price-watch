@@ -34,8 +34,12 @@ async function main() {
     const priceHistoryCol = db.collection<PriceRecord>(priceHistoryCollectionName);
 
     await syncScrapedProducts(scrapedProducts, productsCol, priceHistoryCol);
-
+    
+    console.log(`✅ Syncing complete.`);
+    
     await disconnectDb();
+
+    console.log("🛑 Closed MongoDB");
 
     console.log("📄 Step 3: Exporting CSV...");
     const csvContent = exportToCsv(scrapedProducts);
@@ -44,7 +48,6 @@ async function main() {
     await uploadCsvToB2(csvContent, `products/${getMyanmarISODate(new Date())}/products-${Date.now()}.csv`);
 
     console.log("✅ Pipeline complete.");
-    process.exit(0);
   } catch (err) {
     console.error("❌ Pipeline failed:", err);
     process.exit(1);

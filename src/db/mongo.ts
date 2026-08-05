@@ -1,6 +1,7 @@
 import { MongoClient, Db } from "mongodb";
 import { getConfig } from "../config/index.ts";
 
+let client: MongoClient | null = null;
 let db: Db | null = null;
 
 export const productCollectionName = "products";
@@ -14,10 +15,10 @@ export async function connectDb(): Promise<Db> {
   const uri = config.mongodb.uri;
   if (!uri) throw new Error("MONGODB_URI is not set");
 
-  const client = new MongoClient(uri, { serverApi: { version: "1" } });
+  client = new MongoClient(uri, { serverApi: { version: "1" } });
   await client.connect();
   db = client.db();
-  console.log("Connected to MongoDB");
+  console.log("✅ Connected to MongoDB");
 
   await setupCollections(db);
   return db;
@@ -39,6 +40,7 @@ async function setupCollections(db: Db): Promise<void> {
 }
 
 export async function disconnectDb(): Promise<void> {
-  await db?.client.close();
+  await client?.close();
+  client = null;
   db = null;
 }
