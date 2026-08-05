@@ -71,7 +71,7 @@ MongoDB Atlas                Telegram Bot alert
    - `B2_BUCKET_NAME`
    - `B2_REGION`
    - `B2_ENDPOINT`
-   > **Note:** B2_* keys are used to upload csv file to BackBlaze B2 Cloud storage
+   > **Note:** B2_* keys are used to upload csv file to BackBlaze B2 Cloud storage (here you can use any S3-compatible cloud storage)
    - `ATLAS_PUBLIC_KEY`
    - `ATLAS_PRIVATE_KEY`
    > **Note:** `ATLAS_PUBLIC_KEY` and `ATLAS_PRIVATE_KEY` are MongoDB Atlas Organization API key.\
