@@ -55,7 +55,7 @@ MongoDB Atlas                Telegram Bot alert
    ```
 5. Run the scraper once
    ```bash
-   node src/scraper/run-once.ts
+   node src/index.ts
    ```
 
 ## Deployment (GitHub Actions)
@@ -66,6 +66,12 @@ MongoDB Atlas                Telegram Bot alert
    - `MONGODB_URI`
    - `TELEGRAM_BOT_TOKEN`
    - `TELEGRAM_CHAT_ID`
+   - `B2_KEY_ID`
+   - `B2_APP_KEY`
+   - `B2_BUCKET_NAME`
+   - `B2_REGION`
+   - `B2_ENDPOINT`
+   > **Note:** B2_* keys are used to upload csv file to BackBlaze B2 Cloud storage
    - `ATLAS_PUBLIC_KEY`
    - `ATLAS_PRIVATE_KEY`
    > **Note:** `ATLAS_PUBLIC_KEY` and `ATLAS_PRIVATE_KEY` are MongoDB Atlas Organization API key.\
