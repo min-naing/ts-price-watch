@@ -1,7 +1,6 @@
 import { getConfig } from "../config/index.ts";
 import { delay } from "../utils/delay.ts";
 
-const MAX_RETRIES = 3;
 const BASE_RETRY_DELAY_MS = 500;
 
 function parseRetryAfter(responseBody: string): number | null {
@@ -16,15 +15,16 @@ function parseRetryAfter(responseBody: string): number | null {
 
 export async function sendTelegramAlert(message: string): Promise<void> {
   const config = getConfig();
-  const token = config.telegram.botToken;
-  const chatId = config.telegram.chatId;
+  const { botToken: token, chatId } = config.telegram;
+  const { maxRetries } = config.scraper;
+  
   if (!token || !chatId) throw new Error("Telegram env vars not set");
 
   const url = `https://api.telegram.org/bot${token}/sendMessage`;
 
   let lastError: Error | null = null;
 
-  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const res = await fetch(url, {
         method: "POST",
@@ -43,18 +43,18 @@ export async function sendTelegramAlert(message: string): Promise<void> {
         `Telegram send failed with status ${res.status}: ${responseBody || "No response body"}`,
       );
 
-      if (attempt < MAX_RETRIES) {
+      if (attempt < maxRetries) {
         const waitMs = (retryAfter ?? 0) * 1000 + BASE_RETRY_DELAY_MS;
         await delay(waitMs);
       }
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
 
-      if (attempt < MAX_RETRIES) {
+      if (attempt < maxRetries) {
         await delay(BASE_RETRY_DELAY_MS);
       }
     }
   }
 
-  throw new Error(`Telegram send failed after ${MAX_RETRIES} attempts: ${lastError?.message}`);
+  throw new Error(`Telegram send failed after ${maxRetries} attempts: ${lastError?.message}`);
 }

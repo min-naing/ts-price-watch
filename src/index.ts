@@ -1,5 +1,10 @@
 import "dotenv/config";
 import { loadConfig } from "./config/index.ts";
+
+// ✅ crashes here immediately with a clear message if any var is missing
+// nothing else has run yet — no browser, no DB connection, no scraping
+loadConfig();
+
 import { collectScrapedProducts } from "./scraper/scrape-product-list.ts";
 import { syncScrapedProducts } from "./service/product-sync-service.ts";
 import { exportToCsv } from "./export/export-csv.ts";
@@ -16,8 +21,6 @@ import { getMyanmarISODate } from "./utils/date.ts";
 
 async function main() {
   try {
-    loadConfig();
-    
     console.log("🚀 Starting pipeline...");
 
     console.log("📦 Step 1: Scraping...");
