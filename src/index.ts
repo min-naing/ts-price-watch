@@ -3,6 +3,13 @@ import { collectScrapedProducts } from "./scraper/scrape-product-list.ts";
 import { syncScrapedProducts } from "./service/product-sync-service.ts";
 import { exportToCsv } from "./export/export-csv.ts";
 import { uploadCsvToB2 } from "./upload/upload-b2.ts";
+import {
+  connectDb,
+  priceHistoryCollectionName,
+  productCollectionName,
+} from "./db/mongo.ts";
+import type { PriceRecord, Product } from "./types/product.ts";
+
 
 async function main() {
   try {
@@ -14,7 +21,13 @@ async function main() {
     console.log(
       "🔁 Step 2: Syncing to MongoDB and sending price drop alerts...",
     );
-    await syncScrapedProducts(scrapedProducts);
+    const db = await connectDb();
+    const productsCol = db.collection<Product>(productCollectionName);
+    const priceHistoryCol = db.collection<PriceRecord>(priceHistoryCollectionName);
+
+    await syncScrapedProducts(scrapedProducts, productsCol, priceHistoryCol);
+
+    await db.client.close();
 
     console.log("📄 Step 3: Exporting CSV...");
     const csvContent = exportToCsv(scrapedProducts);

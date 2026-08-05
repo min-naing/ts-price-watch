@@ -1,16 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../db/mongo.ts", () => ({
-  connectDb: vi.fn(),
-  priceHistoryCollectionName: "priceHistory",
-  productCollectionName: "products",
-}));
-
 vi.mock("../notify/telegram.ts", () => ({
   sendTelegramAlert: vi.fn(),
 }));
 
-import { sendPriceDropAlertsInBatches } from "../service/product-sync-service.ts";
+import { sendPriceDropAlertsInBatches } from "../service/alert-service.ts";
 import { sendTelegramAlert } from "../notify/telegram.ts";
 
 describe("sendPriceDropAlertsInBatches", () => {

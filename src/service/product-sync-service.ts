@@ -1,82 +1,37 @@
-import {
-  connectDb,
-  priceHistoryCollectionName,
-  productCollectionName,
-} from "../db/mongo.ts";
-import { sendTelegramAlert } from "../notify/telegram.ts";
+import type { Collection } from "mongodb";
+import {  upsertProduct, getLatestPriceRecord, insertPriceRecord } from "../repository/product-repository.ts";
+import { buildPriceDropAlert } from "./price-drop-detector.ts";
 import type { PriceRecord, Product, ScrapedProduct } from "../types/product.ts";
-import { delay } from "../utils/delay.ts";
+import { sendPriceDropAlertsInBatches } from "./alert-service.ts";
 
-const BATCH_SIZE = 5;
-const BATCH_DELAY_MS = 1500;
-
-export async function sendPriceDropAlertsInBatches(
-  alerts: string[],
-  batchSize: number = BATCH_SIZE,
-): Promise<void> {
-  for (let index = 0; index < alerts.length; index += batchSize) {
-    const batch = alerts.slice(index, index + batchSize);
-    const message = batch.join("\n\n");
-    await sendTelegramAlert(message);
-
-    if (index + batchSize < alerts.length) {
-      await delay(BATCH_DELAY_MS);
-    }
-  }
-}
 
 export async function syncScrapedProducts(
   products: ScrapedProduct[],
+  productsCol: Collection<Product>,
+  priceHistoryCol: Collection<PriceRecord>,
 ): Promise<void> {
-  const db = await connectDb();
-
-  const productsCol = db.collection<Product>(productCollectionName);
-  const priceHistoryCol = db.collection<PriceRecord>(
-    priceHistoryCollectionName,
-  );
-
   const priceDropAlerts: string[] = [];
 
   for (const product of products) {
-    const { name, imgUrl, fullUrl, price, isOnSale, inStock, scrapedAt } =
-      product;
-
     try {
-      await productsCol.updateOne(
-        { fullUrl },
-        {
-          $set: {
-            name,
-            imgUrl,
-            fullUrl,
-            updatedAt: new Date(),
-          },
-        },
-        { upsert: true },
-      );
+      await upsertProduct(productsCol, product);
 
-      const previous = await priceHistoryCol.findOne(
-        { fullUrl },
-        { sort: { scrapedAt: -1 } },
-      );
+      const previous = await getLatestPriceRecord(priceHistoryCol, product.fullUrl);
 
-      if (previous && price < previous.price) {
-        priceDropAlerts.push(
-          `🚨 Price drop! ${name}\n` +
-            `Was: $${previous.price} → Now: $${price}\n` +
-            `${fullUrl}`,
-        );
-      }
+      const alert = buildPriceDropAlert(product, previous);
+      if (alert) priceDropAlerts.push(alert);
 
-      await priceHistoryCol.insertOne({
-        fullUrl,
-        price,
-        isOnSale,
-        inStock,
-        scrapedAt,
+      await insertPriceRecord(
+      priceHistoryCol,
+      {
+        fullUrl: product.fullUrl,
+        price: product.price,
+        isOnSale: product.isOnSale,
+        inStock: product.inStock,
+        scrapedAt: product.scrapedAt,
       });
     } catch (err) {
-      console.error(`Error syncing product ${fullUrl}:`, err);
+      console.error(`Error syncing product ${product.fullUrl}:`, err);
     }
   }
 

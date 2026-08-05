@@ -1,7 +1,7 @@
 import type { Collection } from "mongodb";
 import type { Product, PriceRecord } from "../types/product.ts";
 
-async function upsertProduct(
+export async function upsertProduct(
   col: Collection<Product>,
   product: Pick<Product, "name" | "imgUrl" | "fullUrl">,
 ): Promise<void> {
@@ -12,14 +12,14 @@ async function upsertProduct(
   );
 }
 
-async function getLatestPriceRecord(
+export async function getLatestPriceRecord(
   col: Collection<PriceRecord>,
   fullUrl: string,
 ): Promise<PriceRecord | null> {
   return await col.findOne({ fullUrl }, { sort: { scrapedAt: -1 } });
 }
 
-async function insertPriceRecord(
+export async function insertPriceRecord(
     col: Collection<PriceRecord>,
     record: PriceRecord,
 ): Promise<void> {
