@@ -5,6 +5,25 @@ import {
 } from "../db/mongo.ts";
 import { sendTelegramAlert } from "../notify/telegram.ts";
 import type { PriceRecord, Product, ScrapedProduct } from "../types/product.ts";
+import { delay } from "../utils/delay.ts";
+
+const BATCH_SIZE = 5;
+const BATCH_DELAY_MS = 1500;
+
+export async function sendPriceDropAlertsInBatches(
+  alerts: string[],
+  batchSize: number = BATCH_SIZE,
+): Promise<void> {
+  for (let index = 0; index < alerts.length; index += batchSize) {
+    const batch = alerts.slice(index, index + batchSize);
+    const message = batch.join("\n\n");
+    await sendTelegramAlert(message);
+
+    if (index + batchSize < alerts.length) {
+      await delay(BATCH_DELAY_MS);
+    }
+  }
+}
 
 export async function syncScrapedProducts(
   products: ScrapedProduct[],
@@ -15,6 +34,8 @@ export async function syncScrapedProducts(
   const priceHistoryCol = db.collection<PriceRecord>(
     priceHistoryCollectionName,
   );
+
+  const priceDropAlerts: string[] = [];
 
   for (const product of products) {
     const { name, imgUrl, fullUrl, price, isOnSale, inStock, scrapedAt } =
@@ -40,7 +61,7 @@ export async function syncScrapedProducts(
       );
 
       if (previous && price < previous.price) {
-        await sendTelegramAlert(
+        priceDropAlerts.push(
           `🚨 Price drop! ${name}\n` +
             `Was: $${previous.price} → Now: $${price}\n` +
             `${fullUrl}`,
@@ -57,5 +78,9 @@ export async function syncScrapedProducts(
     } catch (err) {
       console.error(`Error syncing product ${fullUrl}:`, err);
     }
+  }
+
+  if (priceDropAlerts.length > 0) {
+    await sendPriceDropAlertsInBatches(priceDropAlerts);
   }
 }
