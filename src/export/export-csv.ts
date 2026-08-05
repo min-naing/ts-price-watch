@@ -16,8 +16,8 @@ export function exportToCsv(products: ScrapedProduct[]): string {
       `"${p.name.replace(/"/g, '""')}"`, // escape quotes in names
       p.price,
       p.isOnSale,
-      p.inStock,
-      p.imgUrl,
+      p.inStock ?? "variant",
+      p.imgUrl ?? "N/A",
       p.fullUrl,
       p.scrapedAt.toISOString(),
     ].join(","),

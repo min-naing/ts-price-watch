@@ -1,7 +1,5 @@
-export function getMyanmarDate(): string {
-  // Always reads the absolute current timestamp
-  const date = new Date(); 
-  
+
+export function getMyanmarISODate(date: Date): string {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Yangon",
     year: "numeric",

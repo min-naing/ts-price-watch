@@ -10,7 +10,7 @@ import {
   productCollectionName,
 } from "./db/mongo.ts";
 import type { PriceRecord, Product } from "./types/product.ts";
-import { getMyanmarDate } from "./utils/date.ts";
+import { getMyanmarISODate } from "./utils/date.ts";
 
 
 async function main() {
@@ -35,7 +35,7 @@ async function main() {
     const csvContent = exportToCsv(scrapedProducts);
 
     console.log("☁️ Step 4: Uploading to B2...");
-    await uploadCsvToB2(csvContent, `products/${getMyanmarDate()}/products-${Date.now()}.csv`);
+    await uploadCsvToB2(csvContent, `products/${getMyanmarISODate(new Date())}/products-${Date.now()}.csv`);
 
     console.log("✅ Pipeline complete.");
     process.exit(0);
