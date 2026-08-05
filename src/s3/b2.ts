@@ -1,10 +1,11 @@
 import { S3Client } from "@aws-sdk/client-s3";
-import { config } from "../config/index.ts";
+import { getConfig } from "../config/index.ts";
 
 let client: S3Client | null = null;
 
 export function getB2Client(): S3Client {
   if (!client) {
+    const config = getConfig();
     client = new S3Client({
       endpoint: config.backblaze.endpoint,
       region: config.backblaze.region,

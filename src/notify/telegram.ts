@@ -1,4 +1,4 @@
-import { config } from "../config/index.ts";
+import { getConfig } from "../config/index.ts";
 import { delay } from "../utils/delay.ts";
 
 const MAX_RETRIES = 3;
@@ -15,6 +15,7 @@ function parseRetryAfter(responseBody: string): number | null {
 }
 
 export async function sendTelegramAlert(message: string): Promise<void> {
+  const config = getConfig();
   const token = config.telegram.botToken;
   const chatId = config.telegram.chatId;
   if (!token || !chatId) throw new Error("Telegram env vars not set");
