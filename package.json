@@ -10,12 +10,13 @@
     "dev": "node --watch src/index.ts",
     "start": "node src/index.ts",
     "scrape": "node src/scraper/run.ts",
-    "test": "playwright test",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
     "test:install": "playwright install --with-deps",
-    "test:upload-b2": "node --test --experimental-strip-types src/tests/upload-b2.test.ts",
-    "test:parse-price": "node --test --experimental-strip-types src/tests/scrape-product-list.test.ts",
+    "test:upload-b2": "vitest run src/tests/upload-b2.test.ts",
+    "test:parse-price": "vitest run src/tests/scrape-product-list.test.ts",
     "typecheck": "tsc --noEmit",
     "build": "tsc",
     "start:prod": "node dist/index.js"
@@ -31,6 +32,10 @@
     "@playwright/test": "^1.62.0",
     "@types/node": "^26.1.1",
     "@types/node-cron": "^3.0.11",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  },
+  "volta": {
+    "node": "24.18.0"
   }
 }
