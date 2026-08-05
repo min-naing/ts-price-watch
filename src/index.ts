@@ -5,6 +5,7 @@ import { exportToCsv } from "./export/export-csv.ts";
 import { uploadCsvToB2 } from "./upload/upload-b2.ts";
 import {
   connectDb,
+  disconnectDb,
   priceHistoryCollectionName,
   productCollectionName,
 } from "./db/mongo.ts";
@@ -28,7 +29,7 @@ async function main() {
 
     await syncScrapedProducts(scrapedProducts, productsCol, priceHistoryCol);
 
-    await db.client.close();
+    await disconnectDb();
 
     console.log("📄 Step 3: Exporting CSV...");
     const csvContent = exportToCsv(scrapedProducts);

@@ -35,3 +35,8 @@ async function setupCollections(db: Db): Promise<void> {
     console.log("Created price_history time series collection");
   }
 }
+
+export async function disconnectDb(): Promise<void> {
+  await db?.client.close();
+  db = null;
+}
