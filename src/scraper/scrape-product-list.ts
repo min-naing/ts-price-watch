@@ -1,13 +1,22 @@
 import { chromium, type Locator } from "playwright";
 import type { ScrapedProduct } from "../types/product.ts";
+import { getConfig } from "../config/index.ts";
 
 export async function collectScrapedProducts(): Promise<ScrapedProduct[]> {
   const browser = await chromium.launch({ headless: true });
+
   const products: ScrapedProduct[] = [];
 
   try {
     const page = await browser.newPage();
-    await page.goto("https://scrapingcourse.com/ecommerce");
+
+    const { timeoutMs } = getConfig().scraper;
+    page.setDefaultTimeout(timeoutMs);
+    page.setDefaultNavigationTimeout(timeoutMs * 2);
+
+    await page.goto("https://scrapingcourse.com/ecommerce", {
+      waitUntil: "domcontentloaded",
+    });
 
     let pageNum = 1;
     let failCount = 0;
@@ -22,7 +31,7 @@ export async function collectScrapedProducts(): Promise<ScrapedProduct[]> {
       for (const item of await rows.all()) {
         try {
           const firstLink = item.getByRole("link").first();
-          
+
           const rawUrl = await firstLink.getAttribute("href");
           if (!rawUrl) {
             console.warn(`Skipping product — missing href`);
@@ -61,14 +70,15 @@ export async function collectScrapedProducts(): Promise<ScrapedProduct[]> {
             scrapedAt: new Date(),
           });
         } catch (err) {
-          failCount++;
           console.error("Failed to scrape item, skipping:", err);
+          failCount++;
+          if (failCount > 5) {
+            throw new Error(
+              `Too many scrape failures: ${failCount} items failed — site structure may have changed`,
+            );
+          }
           continue;
         }
-      }
-
-      if (failCount > 5) {
-        throw new Error(`Too many scrape failures: ${failCount} items failed — site structure may have changed`);
       }
 
       const nextLink = page
