@@ -1,6 +1,6 @@
 import type { ScrapedProduct } from "../types/product.ts";
 
-const sanitize = (val: string) => `"${val.replace(/"/g, '""')}"`
+const sanitize = (val: string) => `"${val.replace(/"/g, '""').replace(/[\n\r]/g, ' ')}"`
 
 export function exportToCsv(products: ScrapedProduct[]): string {
   const headers = [

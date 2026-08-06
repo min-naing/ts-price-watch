@@ -12,10 +12,16 @@ const base = {
 };
 
 describe("exportToCsv", () => {
+  it("returns only headers for empty input", () => {
+    expect(exportToCsv([])).toBe(
+      "name,price,isOnSale,inStock,imgUrl,fullUrl,scrapedAt",
+    );
+  });
+
   it("includes header row", () => {
     const csv = exportToCsv([base]);
     expect(csv.split("\n")[0]).toBe(
-      "name,price,isOnSale,inStock,imgUrl,fullUrl,scrapedAt"
+      "name,price,isOnSale,inStock,imgUrl,fullUrl,scrapedAt",
     );
   });
 
@@ -28,6 +34,11 @@ describe("exportToCsv", () => {
   it("escapes double quotes inside string fields", () => {
     const csv = exportToCsv([{ ...base, name: 'Nike "Air" Max' }]);
     expect(csv).toContain('"Nike ""Air"" Max"');
+  });
+
+  it("replaces newlines in string fields with a space", () => {
+    const csv = exportToCsv([{ ...base, name: "Nike\nAir\rMax" }]);
+    expect(csv).toContain('"Nike Air Max"');
   });
 
   it("uses variant for null inStock", () => {
