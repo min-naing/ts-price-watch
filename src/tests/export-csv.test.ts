@@ -45,4 +45,9 @@ describe("exportToCsv", () => {
     const csv = exportToCsv([{ ...base, inStock: null }]);
     expect(csv).toContain("variant");
   });
+
+  it("uses N/A for null imgUrl", () => {
+    const csv = exportToCsv([{ ...base, imgUrl: null }]);
+    expect(csv).toContain('"N/A"');
+  });
 });
