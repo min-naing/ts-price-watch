@@ -42,6 +42,7 @@ type AppConfig = {
     timeoutMs:  number;
     maxRetries: number;
     batchDelayMs: number;
+    failRateThereshold: number;
   };
 }
 
@@ -57,9 +58,10 @@ export function loadConfig(): AppConfig {
     telegram:  loadTelegramConfig(),
     backblaze: loadBackblazeConfig(),
     scraper: {
-      timeoutMs:  parseInt(optionalEnv("SCRAPER_TIMEOUT_MS",  "30000")),
-      maxRetries: parseInt(optionalEnv("SCRAPER_MAX_RETRIES", "3")),
-      batchDelayMs: parseInt(optionalEnv("SCRAPER_BATCH_DELAY_MS", "1200"))
+      timeoutMs:  parseInt(optionalEnv("SCRAPER_TIMEOUT_MS",  "30000"), 10),
+      maxRetries: parseInt(optionalEnv("SCRAPER_MAX_RETRIES", "3"), 10),
+      batchDelayMs: parseInt(optionalEnv("SCRAPER_BATCH_DELAY_MS", "1300"), 10),
+      failRateThereshold: parseFloat(optionalEnv("SCRAPER_FAILED_RATE_THERESHOLD", "0.3"))
     },
   };
 

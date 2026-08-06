@@ -10,7 +10,7 @@ export async function collectScrapedProducts(): Promise<ScrapedProduct[]> {
   try {
     const page = await browser.newPage();
 
-    const { timeoutMs } = getConfig().scraper;
+    const { timeoutMs, failRateThereshold } = getConfig().scraper;
     page.setDefaultTimeout(timeoutMs);
     page.setDefaultNavigationTimeout(timeoutMs * 2);
 
@@ -19,9 +19,11 @@ export async function collectScrapedProducts(): Promise<ScrapedProduct[]> {
     });
 
     let pageNum = 1;
-    let failCount = 0;
 
     while (true) {
+      let failItemCountPerPage = 0;
+      let itemTotalCountPerPage = 0;
+      
       console.log(`📢 Scraping page ${pageNum}`);
 
       const rows = page.locator('[data-products="item"]');
@@ -29,6 +31,7 @@ export async function collectScrapedProducts(): Promise<ScrapedProduct[]> {
       await rows.first().waitFor();
 
       for (const item of await rows.all()) {
+        itemTotalCountPerPage++;
         try {
           const firstLink = item.getByRole("link").first();
 
@@ -71,10 +74,10 @@ export async function collectScrapedProducts(): Promise<ScrapedProduct[]> {
           });
         } catch (err) {
           console.error("Failed to scrape item, skipping:", err);
-          failCount++;
-          if (failCount > 5) {
+          failItemCountPerPage++;
+          if (itemTotalCountPerPage >= 5 && failItemCountPerPage / itemTotalCountPerPage > failRateThereshold) {
             throw new Error(
-              `Too many scrape failures: ${failCount} items failed — site structure may have changed`,
+              `Too many scrape failures on page ${pageNum}: ${failItemCountPerPage}/${itemTotalCountPerPage} items failed — site structure may have changed`,
             );
           }
           continue;
