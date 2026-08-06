@@ -10,7 +10,7 @@ export async function collectScrapedProducts(): Promise<ScrapedProduct[]> {
   try {
     const page = await browser.newPage();
 
-    const { timeoutMs, failRateThreshold: failRateThereshold } = getConfig().scraper;
+    const { timeoutMs, failRateThreshold } = getConfig().scraper;
     page.setDefaultTimeout(timeoutMs);
     page.setDefaultNavigationTimeout(timeoutMs * 2);
 
@@ -75,7 +75,7 @@ export async function collectScrapedProducts(): Promise<ScrapedProduct[]> {
         } catch (err) {
           console.error("Failed to scrape item, skipping:", err);
           failItemCountPerPage++;
-          if (itemTotalCountPerPage >= 5 && failItemCountPerPage / itemTotalCountPerPage > failRateThereshold) {
+          if (itemTotalCountPerPage >= 5 && failItemCountPerPage / itemTotalCountPerPage > failRateThreshold) {
             throw new Error(
               `Too many scrape failures on page ${pageNum}: ${failItemCountPerPage}/${itemTotalCountPerPage} items failed — site structure may have changed`,
             );
