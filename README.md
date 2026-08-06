@@ -30,6 +30,7 @@ flowchart TD
 - Identifies variant vs simple products
 - Stores price history in MongoDB time series collection
 - Sends Telegram alert when price drops
+- Exports scraped data as CSV and uploads to Backblaze B2 cloud storage
 - Runs automatically every 6 hours via GitHub Actions
 
 ## Tech Stack
@@ -38,6 +39,7 @@ flowchart TD
 - Playwright (browser automation)
 - MongoDB Atlas (time series collection)
 - Telegram Bot API
+- AWS SDK for JavaScript S3 Client
 - GitHub Actions (scheduling)
 
 ## Local Setup
