@@ -10,7 +10,7 @@ export async function collectScrapedProducts(): Promise<ScrapedProduct[]> {
   try {
     const page = await browser.newPage();
 
-    const { timeoutMs, failRateThereshold } = getConfig().scraper;
+    const { timeoutMs, failRateThreshold: failRateThereshold } = getConfig().scraper;
     page.setDefaultTimeout(timeoutMs);
     page.setDefaultNavigationTimeout(timeoutMs * 2);
 
@@ -23,7 +23,7 @@ export async function collectScrapedProducts(): Promise<ScrapedProduct[]> {
     while (true) {
       let failItemCountPerPage = 0;
       let itemTotalCountPerPage = 0;
-      
+
       console.log(`📢 Scraping page ${pageNum}`);
 
       const rows = page.locator('[data-products="item"]');

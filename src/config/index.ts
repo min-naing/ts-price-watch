@@ -42,7 +42,7 @@ type AppConfig = {
     timeoutMs:  number;
     maxRetries: number;
     batchDelayMs: number;
-    failRateThereshold: number;
+    failRateThreshold: number;
   };
 }
 
@@ -61,7 +61,7 @@ export function loadConfig(): AppConfig {
       timeoutMs:  parseInt(optionalEnv("SCRAPER_TIMEOUT_MS",  "30000"), 10),
       maxRetries: parseInt(optionalEnv("SCRAPER_MAX_RETRIES", "3"), 10),
       batchDelayMs: parseInt(optionalEnv("SCRAPER_BATCH_DELAY_MS", "1300"), 10),
-      failRateThereshold: parseFloat(optionalEnv("SCRAPER_FAILED_RATE_THERESHOLD", "0.3"))
+      failRateThreshold: parseFloat(optionalEnv("SCRAPER_FAILED_RATE_THRESHOLD", "0.3"))
     },
   };
 
