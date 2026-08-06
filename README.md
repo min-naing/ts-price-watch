@@ -4,13 +4,13 @@ E-commerce price tracker that monitors product prices and sends Telegram alerts 
 
 ## How It Works
 
-```
-GitHub Actions (every 6 hours)
-         ↓ triggers
-Playwright scraper (188 products, 12 pages)
-         ↓ saves to               ↓ price dropped?
-MongoDB Atlas                Telegram Bot alert
-(time series)
+```mermaid
+flowchart TD
+    A["⏰ GitHub Actions <br> (every 6 hour)"] --> B["🌐 Step 1: Playwright Scraper 188 product, 12 pages"] --> C["Step 2: Sync to MongoDB Atlas (time series collection)"]
+    C --> D{Price dropped?}
+    D --> |Yes| E["📬 Telegram Alert"]
+    C --> F["💾 Step 3: Export CSV"]
+    F --> G["Step 4: Upload to BackBlaze B2 <br> (S3-compatible)"]
 ```
 
 ## Demo
