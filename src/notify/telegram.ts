@@ -44,14 +44,16 @@ export async function sendTelegramAlert(message: string): Promise<void> {
       );
 
       if (attempt < maxRetries) {
-        const waitMs = (retryAfter ?? 0) * 1000 + BASE_RETRY_DELAY_MS;
+        const waitMs = retryAfter 
+          ? retryAfter * 1000 + BASE_RETRY_DELAY_MS
+          : BASE_RETRY_DELAY_MS * Math.pow(2, attempt - 1);
         await delay(waitMs);
       }
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
 
       if (attempt < maxRetries) {
-        await delay(BASE_RETRY_DELAY_MS);
+        await delay(BASE_RETRY_DELAY_MS * Math.pow(2, attempt - 1));
       }
     }
   }
