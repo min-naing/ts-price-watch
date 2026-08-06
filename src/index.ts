@@ -18,9 +18,9 @@ import {
 import type { PriceRecord, Product } from "./types/product.ts";
 import { getMyanmarISODate } from "./utils/date.ts";
 
-
 async function main() {
   try {
+    const started = Date.now();
     console.log("🚀 Starting pipeline...");
 
     console.log("📦 Step 1: Scraping...");
@@ -29,29 +29,39 @@ async function main() {
     console.log(
       "🔁 Step 2: Syncing to MongoDB and sending price drop alerts...",
     );
-    const db = await connectDb();
-    const productsCol = db.collection<Product>(productCollectionName);
-    const priceHistoryCol = db.collection<PriceRecord>(priceHistoryCollectionName);
 
-    await syncScrapedProducts(scrapedProducts, productsCol, priceHistoryCol);
-    
-    console.log(`✅ Syncing complete.`);
-    
-    await disconnectDb();
+    try {
+      const db = await connectDb();
+      const productsCol = db.collection<Product>(productCollectionName);
+      const priceHistoryCol = db.collection<PriceRecord>(
+        priceHistoryCollectionName,
+      );
 
-    console.log("🛑 Closed MongoDB");
+      await syncScrapedProducts(scrapedProducts, productsCol, priceHistoryCol);
+
+      console.log(`✅ Syncing complete.`);
+    } finally {
+      try {
+        await disconnectDb();
+        console.log("🛑 Closed MongoDB");
+      } catch (err) {
+        console.error("Failed to close MongoDB", err);
+      }
+    }
 
     console.log("📄 Step 3: Exporting CSV...");
     const csvContent = exportToCsv(scrapedProducts);
 
     console.log("☁️ Step 4: Uploading to B2...");
-    await uploadCsvToB2(csvContent, `products/${getMyanmarISODate(new Date())}/products-${Date.now()}.csv`);
+    const uploadPath = `products/${getMyanmarISODate(new Date())}/products-${Date.now()}.csv`;
+    await uploadCsvToB2(csvContent, uploadPath);
 
     console.log("✅ Pipeline complete.");
+    console.log(`✅ Finished in ${(Date.now() - started) / 1000}s`);
   } catch (err) {
     console.error("❌ Pipeline failed:", err);
     process.exit(1);
   }
 }
 
-main();
+await main();
