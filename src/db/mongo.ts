@@ -10,10 +10,7 @@ export const priceHistoryCollectionName = "price_history";
 export async function connectDb(): Promise<Db> {
   if (db) return db;
 
-  const config = getConfig();
-
-  const uri = config.mongodb.uri;
-  if (!uri) throw new Error("MONGODB_URI is not set");
+  const { uri } = getConfig().mongodb;
 
   client = new MongoClient(uri, { serverApi: { version: "1" } });
   await client.connect();

@@ -1,4 +1,3 @@
-import { getConfig } from "../config/index.ts";
 import { sendTelegramAlert } from "../notify/telegram.ts";
 import { delay } from "../utils/delay.ts";
 
