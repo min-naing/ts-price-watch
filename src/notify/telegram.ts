@@ -8,8 +8,12 @@ const BASE_RETRY_DELAY_MS = 500;
  * honour the server-supplied retry_after instead of the default backoff.
  */
 export class TelegramRateLimitError extends Error {
-  constructor(public readonly retryAfterMs: number) {
+  public readonly retryAfterMs: number;
+
+  constructor(retryAfterMs: number) {
     super(`Rate limited, retry after ${retryAfterMs}ms`);
+    
+    this.retryAfterMs = retryAfterMs;
     this.name = "TelegramRateLimitError";
   }
 }
