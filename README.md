@@ -7,12 +7,12 @@ E-commerce price tracker that monitors product prices and sends Telegram alerts 
 ```mermaid
 flowchart TD
     A["⏰ GitHub Actions <br> (every 6 hour)"] 
-    A --> B["🌐 Step 1: Playwright Scraper 188 product, 12 pages"] 
-    B --> C["🔁 Step 2: Sync to MongoDB Atlas (time series collection)"]
+    A --> B["🌐 Playwright Scraper<br>188 product across 12 pages"] 
+    B --> C["🔁 Sync to MongoDB Atlas<br>(time series collection)"]
     C --> D{Price dropped?}
     D --> |Yes| E["📬 Telegram Alert"]
-    C --> F["💾 Step 3: Export CSV"]
-    F --> G["☁️ Step 4: Upload to BackBlaze B2 <br> (S3-compatible)"]
+    B --> F["💾 Export CSV"]
+    F --> G["☁️ Upload to Backblaze B2<br>(S3-compatible object storage)"]
 ```
 
 ## Demo
@@ -75,11 +75,11 @@ flowchart TD
    - `B2_BUCKET_NAME`
    - `B2_REGION`
    - `B2_ENDPOINT`
-   > **Note:** B2_* keys are used to upload csv file to BackBlaze B2 Cloud storage (here you can use any S3-compatible cloud storage)
+   > **Note:** B2_* keys are used to upload csv file to Backblaze B2 Cloud storage. (here you can use any S3-compatible cloud storage)
    - `ATLAS_PUBLIC_KEY`
    - `ATLAS_PRIVATE_KEY`
-   > **Note:** `ATLAS_PUBLIC_KEY` and `ATLAS_PRIVATE_KEY` are MongoDB Atlas Organization API key.\
-   > Go to **Project → Project Identity & Access → Applications -> API Keys → Create API Key** with **Project Network Access Manager** role.
+   > **Note:** `ATLAS_PUBLIC_KEY` and `ATLAS_PRIVATE_KEY` are MongoDB Atlas API key credentials used by the workflow to temporarily allow the GitHub Actions runner to access MongoDB Atlas.\
+   Create an API key with the **Project Network Access Manager** role under **Project → Project Identity & Access → Applications → API Keys**.
 4. Add the following repository variable:
    - `ATLAS_GROUP_ID`
    > **Note:** `ATLAS_GROUP_ID` is your Project ID, found under MongoDB Atlas **Project Settings**.
