@@ -7,7 +7,7 @@ E-commerce price tracker that monitors product prices and sends Telegram alerts 
 ```mermaid
 flowchart TD
     A["⏰ GitHub Actions <br> (every 6 hour)"] 
-    A --> B["🌐 Playwright Scraper<br>188 product across 12 pages"] 
+    A --> B["🌐 Playwright Scraper<br>all product across all pages"] 
     B --> C["🔁 Sync to MongoDB Atlas<br>(time series collection)"]
     C --> D{Price dropped?}
     D --> |Yes| E["📬 Telegram Alert"]
@@ -25,7 +25,7 @@ flowchart TD
 
 ## Features
 
-- Scrapes 188 products across 12 pages
+- Scrapes all products across all pages
 - Detects sale prices vs normal prices
 - Identifies variant vs simple products
 - Stores price history in MongoDB time series collection
@@ -62,6 +62,14 @@ flowchart TD
    node src/index.ts
    ```
 
+## Tests
+
+- Run unit tests with `npm test`. Smoke tests are excluded and use fake environment values from `src/tests/setup.ts`.
+- Run the Backblaze B2 smoke test with `npm run test:smoke:upload-b2`.
+- Run the Telegram smoke test with `npm run test:smoke:telegram`.
+
+Smoke tests use `vitest.smoke.config.ts`, which does not load the unit-test setup. They load credentials from `.env` via `dotenv/config`.
+
 ## Deployment (GitHub Actions)
 
 1. Push the repository to GitHub
@@ -73,7 +81,6 @@ flowchart TD
    - `B2_KEY_ID`
    - `B2_APP_KEY`
    - `B2_BUCKET_NAME`
-   - `B2_REGION`
    - `B2_ENDPOINT`
    > **Note:** B2_* keys are used to upload csv file to Backblaze B2 Cloud storage. (here you can use any S3-compatible cloud storage)
    - `ATLAS_PUBLIC_KEY`

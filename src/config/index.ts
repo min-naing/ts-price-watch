@@ -25,7 +25,6 @@ export function loadMongoConfig() {
 
 export function loadBackblazeConfig() {
   return {
-    region:     requireEnv("B2_REGION"),
     endpoint:   requireEnv("B2_ENDPOINT"),
     keyId:      requireEnv("B2_KEY_ID"),
     appKey:     requireEnv("B2_APP_KEY"),

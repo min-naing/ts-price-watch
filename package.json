@@ -15,8 +15,8 @@
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
     "test:install": "playwright install --with-deps",
-    "test:smoke:upload-b2": "vitest run src/tests/smoke/upload-b2.smoke.test.ts",
-    "test:smoke:telegram": "vitest run src/tests/smoke/telegram.smoke.test.ts",
+    "test:smoke:upload-b2": "vitest run --config vitest.smoke.config.ts  src/tests/smoke/upload-b2.smoke.test.ts",
+    "test:smoke:telegram": "vitest run --config vitest.smoke.config.ts src/tests/smoke/telegram.smoke.test.ts",
     "typecheck": "tsc --noEmit",
     "build": "tsc",
     "start:prod": "node dist/index.js"
@@ -31,6 +31,6 @@
     "@playwright/test": "^1.62.0",
     "@types/node": "^26.1.1",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.10"
+    "vitest": "^5.0.3"
   }
 }

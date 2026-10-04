@@ -1,4 +1,4 @@
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand, type PutObjectCommandOutput } from "@aws-sdk/client-s3";
 import { getConfig } from "../config/index.ts";
 import { getB2Client } from "../s3/b2.ts";
 import { withRetry } from "../utils/retry.ts";
@@ -8,7 +8,7 @@ const BASE_RETRY_DELAY_MS = 1000;
 export async function uploadCsvToB2(
   csvContent: string,
   fileName: string,
-): Promise<void> {
+): Promise<PutObjectCommandOutput> {
   const client = getB2Client();
   const config = getConfig();
   const { maxRetries } = config.scraper;
@@ -21,7 +21,7 @@ export async function uploadCsvToB2(
   });
 
   try {
-    await withRetry(() => client.send(command), {
+    const result = await withRetry(() => client.send(command), {
       maxRetries,
       baseDelayMs: BASE_RETRY_DELAY_MS,
       onRetry: (attempt, error) => {
@@ -31,11 +31,14 @@ export async function uploadCsvToB2(
         );
       },
     });
+
+    console.log(`✅ Uploaded: ${fileName}`);
+    
+    return result;
   } catch (error) {
-    throw new Error(
+    console.error(
       `B2 upload failed after ${maxRetries} attempts: ${error instanceof Error ? error.message : String(error)}`,
     );
+    throw error;
   }
-
-  console.log(`✅ Uploaded: ${fileName}`);
 }
