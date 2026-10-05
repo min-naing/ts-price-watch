@@ -23,12 +23,14 @@ export async function withRetry<T>(
       return await fn();
     } catch (error) {
       lastError = error;
-      onRetry?.(attempt, error);
-
+      
       if (attempt < maxRetries) {
+        onRetry?.(attempt, error);
+        
         const waitMs = getDelayMs
           ? getDelayMs(attempt, error)
           : baseDelayMs * Math.pow(2, attempt - 1);
+
         await delay(waitMs);
       }
     }

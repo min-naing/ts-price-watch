@@ -22,7 +22,7 @@ export async function uploadCsvToB2(
 
   try {
     const result = await withRetry(() => client.send(command), {
-      maxRetries,
+      maxRetries: maxRetries,
       baseDelayMs: BASE_RETRY_DELAY_MS,
       onRetry: (attempt, error) => {
         console.warn(
