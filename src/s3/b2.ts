@@ -7,7 +7,7 @@ export function getB2Client(): S3Client {
   if (!client) {
     const config = getConfig();
     client = new S3Client({
-      region: "eu-central-003",
+      region: config.backblaze.region,
       endpoint: config.backblaze.endpoint,
       credentials: {
         accessKeyId: config.backblaze.keyId,
